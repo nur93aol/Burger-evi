@@ -142,7 +142,7 @@ function yeni(){document.getElementById("ok").style.display="none";document.getE
 document.getElementById("go").onclick=function(){
  if(V==0){view(1);return}if(V==1){view(2);return}
  if(!chk())return;
- MG=build();U="https://wa.me/"+WA+"?text="+encodeURIComponent(MG);ping();
+ MG=build();U="https://wa.me/"+WA+"?text="+encodeURIComponent(MG);
  var w=null;try{w=window.open(U,"_blank")}catch(e){}
  fin(w)};
 document.addEventListener("focusin",function(e){var t=e.target;if(co&&/^(INPUT|TEXTAREA)$/.test(t.tagName)&&t.type!="checkbox"&&t.type!="radio")setTimeout(function(){t.scrollIntoView({block:"center",behavior:"smooth"})},350)});
