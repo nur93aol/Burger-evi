@@ -12,7 +12,7 @@ exports.handler = async (event) => {
     token, user,
     title: masa ? "🍔 Yeni MASA siparişi" : "🍔 Yeni PAKET sipariş",
     message: m.slice(0, 1000),
-    priority: "2", retry: "30", expire: "900", sound: "persistent"
+    priority: "2", retry: "30", expire: "900", sound: "business"
   });
   try {
     const r = await fetch("https://api.pushover.net/1/messages.json", { method: "POST", body });
