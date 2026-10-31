@@ -1,0 +1,57 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Yönetim Paneli</title>
+<style>
+:root{--ink:#202124;--mut:#6b6f76;--line:#e3e3e0;--ac:#0f6b4f;--bad:#b3261e}
+*{box-sizing:border-box}body{margin:0;font:16px/1.4 system-ui,sans-serif;color:var(--ink);background:#fff;padding-bottom:80px}
+button,input{font:inherit}button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}input[type=text],input[type=number],input[type=password],input[type=time],select{border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#login{max-width:340px;margin:20vh auto;padding:16px;display:grid;gap:12px}
+nav{position:sticky;top:0;background:#fff;display:flex;border-bottom:1px solid var(--line)}nav button{flex:1;border:0;border-radius:0;padding:14px 4px}nav button.on{border-bottom:3px solid var(--ac);font-weight:700}
+main{max-width:720px;margin:0 auto;padding:12px}.hide{display:none!important}
+.ord{border:1px solid var(--line);border-radius:10px;padding:10px;margin:10px 0}.ord .h{display:flex;justify-content:space-between;font-weight:700}.ord ul{margin:6px 0;padding-left:18px}.ord small{color:var(--mut)}
+.cat{border-top:2px solid var(--ink);margin-top:18px;padding-top:8px}.cath{display:flex;gap:8px}.cath input{font-weight:700}
+.item{display:grid;grid-template-columns:64px 1fr;gap:8px;margin:10px 0;align-items:center}.ph{width:64px;height:64px;border:1px dashed var(--mut);border-radius:8px;display:grid;place-items:center;font-size:12px;color:var(--mut);overflow:hidden;cursor:pointer;text-align:center}.ph img{width:100%;height:100%;object-fit:cover}
+.f{display:grid;grid-template-columns:1fr 90px;gap:6px}.row2{grid-column:2;display:flex;gap:12px;align-items:center}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px;text-align:center}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:8px}.st div{border:1px solid var(--line);border-radius:10px;padding:10px}.st b{display:block;font-size:22px}
+#toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}
+</style></head><body>
+<form id="login" onsubmit="return false"><h2>Yönetim Paneli</h2><input type="password" id="pw" placeholder="Şifre" autocomplete="current-password"><button class="p" id="go">Giriş Yap</button><small id="err" style="color:var(--bad)"></small></form>
+<div id="app" class="hide">
+<nav><button data-t="o" class="on">Siparişler</button><button data-t="m">Menü</button><button data-t="s">Ayarlar</button><button data-t="r">Rapor</button></nav>
+<main>
+<section id="t-o"><select id="od"><option value="1">Bugün</option><option value="2">Son 2 Gün</option><option value="7">Son 7 Gün</option></select><div id="orders"></div></section>
+<section id="t-m" class="hide"><div id="menu"></div></section>
+<section id="t-s" class="hide"><h3>Siparişler</h3><label><input type="checkbox" id="open"> Sipariş Alınıyor</label><p><small>Kapatırsan müşteriler sipariş veremez.</small></p><h3>Çalışma Saatleri</h3><div class="st"><div>Açılış<input type="time" id="from"></div><div>Kapanış<input type="time" id="to"></div></div><p><button class="p" id="saveS">Ayarları Kaydet</button></p></section>
+<section id="t-r" class="hide"><select id="rd"><option value="1">Bugün</option><option value="7">Son 7 Gün</option><option value="30">Son 30 Gün</option></select><div id="rep"></div></section>
+</main>
+<div class="bar hide" id="mbar"><button class="p" id="saveM">Menüyü Kaydet</button></div></div><div id="toast" class="hide"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let KEY=localStorage.getItem("k")||"",menu={categories:[]},tab="o";
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.remove("hide");setTimeout(()=>e.classList.add("hide"),2000)}
+async function api(p,o={}){const r=await fetch("/api/"+p,{...o,headers:{...(o.headers||{}),"x-admin-key":KEY}});if(r.status===401){localStorage.removeItem("k");location.reload();throw 0}if(!r.ok)throw new Error(r.status);return r}
+async function start(){try{await api("check")}catch{$("#err").textContent=KEY?"Şifre yanlış.":"";return}
+localStorage.setItem("k",KEY);$("#login").classList.add("hide");$("#app").classList.remove("hide");
+const d=await (await fetch("/api/menu")).json();menu=d.menu;$("#open").checked=d.settings.open!==false;$("#from").value=d.settings.from||"";$("#to").value=d.settings.to||"";drawMenu();loadOrders()}
+$("#go").onclick=()=>{KEY=$("#pw").value;start()};if(KEY)start();
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["o","m","s","r"].forEach(t=>$("#t-"+t).classList.toggle("hide",t!=tab));$("#mbar").classList.toggle("hide",tab!="m");if(tab=="o")loadOrders();if(tab=="r")loadReport()});
+async function fetchOrders(d){return (await (await api("orders?days="+d)).json()).orders}
+const tm=t=>new Date(t).toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+async function loadOrders(){const os=await fetchOrders($("#od").value);$("#orders").innerHTML=os.length?os.map(o=>`<div class=ord><div class=h><span>${tm(o.time)} · ${o.type=="masa"?"Masa "+esc(o.table):"Paket"}</span><span>${o.total} TL</span></div><ul>${o.items.map(i=>`<li>${i.qty} × ${esc(i.name)}</li>`).join("")}</ul><small>${esc(o.name)} ${o.phone?`<a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>`:""} ${esc(o.address)}</small></div>`).join(""):"<p>Henüz sipariş yok.</p>"}
+$("#od").onchange=loadOrders;setInterval(()=>{if(tab=="o"&&!document.hidden)loadOrders().catch(()=>{})},30000);
+async function loadReport(){const os=await fetchOrders($("#rd").value),p={};let c=0,m=0;os.forEach(o=>{o.type=="masa"?m++:c++;o.items.forEach(i=>p[i.name]=(p[i.name]||0)+i.qty)});
+const top=Object.entries(p).sort((a,b)=>b[1]-a[1]).slice(0,10);
+$("#rep").innerHTML=`<div class=st><div><b>${os.length}</b>Sipariş</div><div><b>${os.reduce((s,o)=>s+o.total,0)} TL</b>Ciro</div><div><b>${m}</b>Masa</div><div><b>${c}</b>Paket</div></div><h3>En Çok Satanlar</h3>${top.map(t=>`<p>${t[1]} × ${esc(t[0])}</p>`).join("")||"<p>Veri yok.</p>"}`}
+$("#rd").onchange=loadReport;
+function drawMenu(){$("#menu").innerHTML=menu.categories.map((c,ci)=>`<div class=cat><div class=cath><input type=text data-k=cname data-c=${ci} value="${esc(c.name)}" placeholder="Kategori Adı"><button data-a=dc data-c=${ci}>Sil</button></div>${c.items.map((it,ii)=>`<div class=item><label class=ph>${it.photo?`<img src="/api/photo/${esc(it.photo)}">`:"Foto Ekle"}<input type=file accept="image/*" hidden data-a=ph data-c=${ci} data-i=${ii}></label><div class=f><input type=text data-k=name data-c=${ci} data-i=${ii} value="${esc(it.name)}" placeholder="Ürün Adı"><input type=number inputmode=decimal data-k=price data-c=${ci} data-i=${ii} value="${it.price??""}" placeholder="TL"></div><div class=row2><label><input type=checkbox data-k=soldOut data-c=${ci} data-i=${ii} ${it.soldOut?"checked":""}> Tükendi</label><button data-a=di data-c=${ci} data-i=${ii}>Ürünü Sil</button></div></div>`).join("")}<button data-a=ai data-c=${ci}>Ürün Ekle</button></div>`).join("")+`<p><button data-a=ac>Kategori Ekle</button></p>`}
+document.addEventListener("input",e=>{const d=e.target.dataset;if(!d.k)return;const c=menu.categories[d.c];if(d.k=="cname")c.name=e.target.value;else{const it=c.items[d.i];it[d.k]=d.k=="soldOut"?e.target.checked:d.k=="price"?parseFloat(e.target.value)||0:e.target.value}});
+document.addEventListener("click",e=>{const d=e.target.dataset;if(!d.a||d.a=="ph")return;const cs=menu.categories;
+if(d.a=="ac")cs.push({name:"",items:[]});if(d.a=="ai")cs[d.c].items.push({id:Math.random().toString(36).slice(2,10),name:"",price:0,soldOut:false});
+if(d.a=="di"&&confirm("Ürün silinsin mi?"))cs[d.c].items.splice(d.i,1);if(d.a=="dc"&&confirm("Kategori ve içindeki tüm ürünler silinsin mi?"))cs.splice(d.c,1);drawMenu()});
+async function shrink(f){const b=await createImageBitmap(f),s=Math.min(1,800/Math.max(b.width,b.height)),cv=document.createElement("canvas");cv.width=Math.round(b.width*s);cv.height=Math.round(b.height*s);cv.getContext("2d").drawImage(b,0,0,cv.width,cv.height);return new Promise(r=>cv.toBlob(r,"image/jpeg",.8))}
+document.addEventListener("change",async e=>{const d=e.target.dataset;if(d.a!="ph"||!e.target.files[0])return;try{toast("Fotoğraf yükleniyor...");const r=await api("photo",{method:"POST",body:await shrink(e.target.files[0])});menu.categories[d.c].items[d.i].photo=(await r.json()).id;drawMenu();await saveMenu()}catch{toast("Fotoğraf yüklenemedi")}});
+async function saveMenu(){try{await api("menu",{method:"PUT",body:JSON.stringify(menu)});toast("Kaydedildi")}catch{toast("Kaydedilemedi")}}
+$("#saveM").onclick=saveMenu;
+$("#saveS").onclick=async()=>{try{await api("settings",{method:"PUT",body:JSON.stringify({open:$("#open").checked,from:$("#from").value,to:$("#to").value})});toast("Kaydedildi")}catch{toast("Kaydedilemedi")}};
+</script></body></html>
