@@ -1,0 +1,8 @@
+worker.js
+wrangler.jsonc
+.assetsignore
+_worker.js
+_routes.json
+netlify
+netlify.toml
+package.json
