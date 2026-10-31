@@ -1,0 +1,13 @@
+{
+  "name": "burger-evi",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/", "/index.html"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "isletme", "database_id": "20a114b6-5ff8-4fe8-94b0-a1c45baef81b" }
+  ]
+}
