@@ -16,7 +16,7 @@ main{max-width:720px;margin:0 auto;padding:12px}.hide{display:none!important}
 .st{display:grid;grid-template-columns:1fr 1fr;gap:8px}.st div{border:1px solid var(--line);border-radius:10px;padding:10px}.st b{display:block;font-size:22px}
 #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}
 </style></head><body>
-<div id="login"><h2>Yönetim Paneli</h2><input type="text" id="us" placeholder="Kullanıcı Adı" autocomplete="username" autocapitalize="none" spellcheck="false"><input type="password" id="pw" placeholder="Şifre" autocomplete="current-password"><label style="font-size:14px"><input type="checkbox" id="sh"> Şifreyi Göster</label><button type="button" class="p" id="go">Giriş Yap</button><small id="err" style="color:var(--bad)"></small></div>
+<div id="login"><h2>Yönetim Paneli</h2><input type="text" id="us" placeholder="Kullanıcı Adı" autocomplete="username" autocapitalize="none" spellcheck="false"><input type="password" id="pw" placeholder="Şifre" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false"><label style="font-size:14px"><input type="checkbox" id="sh"> Şifreyi Göster</label><button type="button" class="p" id="go">Giriş Yap</button><small id="err" style="color:var(--bad)"></small></div>
 <div id="app" class="hide">
 <nav><button data-t="o" class="on">Siparişler</button><button data-t="m">Menü</button><button data-t="s">Ayarlar</button><button data-t="r">Rapor</button></nav>
 <main>
@@ -28,13 +28,13 @@ main{max-width:720px;margin:0 auto;padding:12px}.hide{display:none!important}
 <div class="bar hide" id="mbar"><button class="p" id="saveM">Menüyü Kaydet</button></div></div><div id="toast" class="hide"></div>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let KEY=localStorage.getItem("k")||"",USR=localStorage.getItem("u")||"",menu={categories:[]},tab="o";
+let KEY=localStorage.getItem("k")||"",USR=localStorage.getItem("u")||"",HASU=localStorage.getItem("u")!==null,busy=0,menu={categories:[]},tab="o";
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.remove("hide");setTimeout(()=>e.classList.add("hide"),2000)}
 async function api(p,o={}){const r=await fetch("/api/"+p,{...o,headers:{...(o.headers||{}),"x-admin-key":KEY,"x-admin-user":USR}});if(r.status===401){localStorage.removeItem("k");const j=await r.json().catch(()=>({})),x=new Error(401);x.left=j.left;throw x}if(r.status===429)throw new Error(429);if(!r.ok)throw new Error(r.status);return r}
-async function start(){try{await api("check")}catch(e){$("#err").style.fontWeight=e.left<=3?"700":"400";$("#err").textContent=String(e.message)=="401"?"Kullanıcı adı veya şifre yanlış."+(e.left!=null?" Kalan hakkınız: "+e.left:""):String(e.message)=="429"?"Çok fazla yanlış deneme. 15 dakika sonra tekrar deneyin.":"Bağlantı hatası, tekrar deneyin.";return}
-$("#err").textContent="";localStorage.setItem("k",KEY);localStorage.setItem("u",USR);$("#login").classList.add("hide");$("#app").classList.remove("hide");
+async function start(man){if(busy)return;busy=1;try{await api("check")}catch(e){busy=0;$("#err").style.fontWeight=man&&e.left<=3?"700":"400";$("#err").textContent=String(e.message)=="401"?(man?"Kullanıcı adı veya şifre yanlış."+(e.left!=null?" Kalan hakkınız: "+e.left:""):"Lütfen tekrar giriş yapın."):String(e.message)=="429"?"Çok fazla yanlış deneme. 15 dakika sonra tekrar deneyin.":"Bağlantı hatası, tekrar deneyin.";return}
+busy=0;$("#err").textContent="";localStorage.setItem("k",KEY);localStorage.setItem("u",USR);$("#login").classList.add("hide");$("#app").classList.remove("hide");
 const d=await (await fetch("/api/menu")).json();menu=d.menu;$("#open").checked=d.settings.open!==false;$("#from").value=d.settings.from||"";$("#to").value=d.settings.to||"";drawMenu();loadOrders()}
-$("#go").onclick=()=>{USR=$("#us").value.trim();KEY=$("#pw").value;start()};$("#sh").onchange=e=>{$("#pw").type=e.target.checked?"text":"password"};["#us","#pw"].forEach(i=>$(i).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#go").click()}}));if(KEY)start();
+$("#go").onclick=()=>{USR=$("#us").value.trim();KEY=$("#pw").value;start(1)};$("#sh").onchange=e=>{$("#pw").type=e.target.checked?"text":"password"};["#us","#pw"].forEach(i=>$(i).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#go").click()}}));if(KEY&&HASU)start();else localStorage.removeItem("k");
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["o","m","s","r"].forEach(t=>$("#t-"+t).classList.toggle("hide",t!=tab));$("#mbar").classList.toggle("hide",tab!="m");if(tab=="o")loadOrders();if(tab=="r")loadReport()});
 async function fetchOrders(d){return (await (await api("orders?days="+d)).json()).orders}
 const tm=t=>new Date(t).toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
