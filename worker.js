@@ -30,9 +30,12 @@ async function api(req,env,u){
   const n=(await DB.prepare("SELECT COUNT(*) c FROM fails WHERE t>?").bind(ms-864e5).first()).c;
   if(n%30===0&&env.PUSHOVER_TOKEN&&env.PUSHOVER_USER){try{await fetch("https://api.pushover.net/1/messages.json",{method:"POST",body:new URLSearchParams({token:env.PUSHOVER_TOKEN,user:env.PUSHOVER_USER,title:"⚠️ Yönetim paneli: yanlış giriş denemesi",message:"Son 24 saatte "+n+" yanlış/engellenen giriş denemesi oldu.",priority:"1"})})}catch(e){}}};
  if((await DB.prepare("SELECT COUNT(*) c FROM fails WHERE ip=? AND k=0 AND t>?").bind(ip,ms-9e5).first()).c>=10){await rec(1);return J({error:"locked"},429)}
- if(!admin){await rec(0);const c=(await DB.prepare("SELECT COUNT(*) c FROM fails WHERE ip=? AND k=0 AND t>?").bind(ip,ms-9e5).first()).c;return J({error:"auth",left:Math.max(0,10-c)},401)}
+ if(!admin){if(!(await DB.prepare("SELECT 1 x FROM fails WHERE ip=? AND k=0 AND t>?").bind(ip,ms-3000).first()))await rec(0);const c=(await DB.prepare("SELECT COUNT(*) c FROM fails WHERE ip=? AND k=0 AND t>?").bind(ip,ms-9e5).first()).c;return J({error:"auth",left:Math.max(0,10-c)},401)}
  if(p==="check")return J({ok:true});
- if(p==="orders"&&m==="GET"){const n=Math.min(90,Math.max(1,+u.searchParams.get("days")||1));const r=await DB.prepare("SELECT d FROM orders WHERE day>=? ORDER BY t DESC").bind(day(n-1)).all();return J({orders:r.results.map(x=>JSON.parse(x.d))})}
+ if(p==="orders"&&m==="GET"){const re=/^\d{4}-\d{2}-\d{2}$/,a=u.searchParams.get("from"),b=u.searchParams.get("to");let r;
+  if(a&&b){if(!re.test(a)||!re.test(b)||a>b||Date.parse(b)-Date.parse(a)>90*864e5)return J({error:"range"},400);r=await DB.prepare("SELECT d FROM orders WHERE day>=? AND day<=? ORDER BY t DESC").bind(a,b).all()}
+  else{const n=Math.min(90,Math.max(1,+u.searchParams.get("days")||1));r=await DB.prepare("SELECT d FROM orders WHERE day>=? ORDER BY t DESC").bind(day(n-1)).all()}
+  return J({orders:r.results.map(x=>JSON.parse(x.d))})}
  if(p==="menu"&&m==="PUT"){await sk(DB,"menu",clean(await req.json()));return J({ok:true})}
  if(p==="settings"&&m==="PUT"){const b=await req.json();await sk(DB,"settings",{open:b.open!==false,from:txt(b.from,5),to:txt(b.to,5)});return J({ok:true})}
  if(p==="photo"&&m==="POST"){const b=String((await req.json()).b||"");if(!b||b.length>1100000||!/^[A-Za-z0-9+/=]+$/.test(b))return J({error:"size"},413);const id=crypto.randomUUID();await DB.prepare("INSERT INTO photos VALUES(?,?)").bind(id,b).run();return J({id})}
