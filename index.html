@@ -41,7 +41,7 @@ a.back{color:var(--acc);cursor:pointer;display:inline-block;margin:14px 0 0}
 <div id="md"><div class="mc"><h2 style="margin-top:0">Aydınlatma Metni</h2><p><b>Veri sorumlusu:</b> Rıza Karabatur (Burger Evi), İnönü Mah. Vezir Sk. No:20 Ödemiş/İzmir · ornek@gmail.com · 0 535 555 55 55</p><p><b>İşlenen veriler:</b> Ad soyad, telefon, adres, sipariş içeriği ve sipariş notu.</p><p><b>Amaç ve hukuki sebep:</b> Siparişinizin alınması, hazırlanması, teslim edilmesi ve sipariş hakkında sizinle iletişim kurulması. Veriler, sözleşmenin kurulması ve ifası için işlenir (KVKK m.5/2-c).</p><p><b>Toplama yöntemi ve aktarım:</b> Veriler bu sayfadaki sipariş formu ile toplanır ve WhatsApp üzerinden işletmenin sipariş hattına (siparişler 0 535 555 55 55 numarasından alınmaktadır) ve siparişi teslim edecek kuryeye iletilir. Bu sayfada saklanmaz.</p><p><b>Saklama süresi:</b> Sipariş kayıtları 6 ay saklanır, süre sonunda silinir veya anonim hale getirilir.</p><p><b>Haklarınız:</b> KVKK m.11 uyarınca verilerinizin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltme ve silme talebinde bulunma haklarına sahipsiniz. Başvuru için yukarıdaki e-posta veya adresi kullanabilirsiniz.</p><button class="btn" onclick="ay(0)">Kapat</button></div></div>
 <div id="bar"><button class="btn" id="go" disabled>Sepet boş</button></div>
 <script>
-var WA="905365298655",MIN=300,FEE=70,MASA=0;
+var WA="900000000000",MIN=300,FEE=70,MASA=0;
 try{var mp=parseInt(new URLSearchParams(location.search).get("masa"));if(mp>=1&&mp<=5)MASA=mp}catch(e){}
 if(MASA){FEE=0;MIN=0}
 var P="Burger ekmeği; el yapımı ",DP="Burger ekmeği; el yapımı double burger köftesi, ",MN=" + patates kızartması + içecek",CK="sucuk, salam, cheddar peyniri, yumurta",VG="Burger ekmeği; turşu, özel sos, mayonez, patates, köz biber, cheddar peyniri, yumurta",TV="Kendimize özgü panelenmiş tavuk parçacıkları, domates, turşu ve tavuk burger için özel sosumuz";
@@ -132,7 +132,7 @@ function fin(w){pend=1;sv();document.getElementById("top").style.display="none";
  o.innerHTML="<h2>Son Kontrol</h2><p>WhatsApp’ta mesajın gittiğinden emin olun. Yeşil gönder okuna basıp, tik işaretini gördüyseniz aşağıdaki düğmeye basın.</p><button class='btn' id='sent'>Mesajı Gönderdim</button><a class='btn' style='margin-top:8px;background:none;color:var(--acc);border:1px solid var(--acc)' target='_blank' rel='noopener' href='"+U+"'>WhatsApp’ı Tekrar Aç</a>"+(w?"":"<p class='note'>WhatsApp otomatik <u>açılmadıysa</u> yukarıdaki düğmeye dokunun ya da mesajı kopyalayıp işletmenin numarasına yapıştırın.</p><textarea id='msg' rows='8' readonly></textarea>");
  if(!w)document.getElementById("msg").value=MG;
  document.getElementById("sent").onclick=done;window.scrollTo(0,0)}
-function ping(){try{var t=MASA?"Yeni masa siparişi – Masa "+MASA:"Yeni paket sipariş";lines().forEach(function(i){t+="\n"+i.c+" × "+i.n});t+="\nToplam: "+(sub()+FEE)+" ₺\nWhatsApp mesajını kontrol edin.";
+function ping(){return;try{var t=MASA?"Yeni masa siparişi – Masa "+MASA:"Yeni paket sipariş";lines().forEach(function(i){t+="\n"+i.c+" × "+i.n});t+="\nToplam: "+(sub()+FEE)+" ₺\nWhatsApp mesajını kontrol edin.";
 fetch("/.netlify/functions/siparis",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({m:t}),keepalive:true}).catch(function(){})}catch(e){}}
 function done(){var l=lines(),s=sub(),h="<h2>Teşekkürler, Siparişiniz Alındı 🎉</h2><div class='sum'>";
  l.forEach(function(i){h+="<div><span>"+i.c+" × "+i.n+"</span><span>"+i.p*i.c+" ₺</span></div>"});
