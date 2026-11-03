@@ -6,7 +6,7 @@ button,input{font:inherit}button{border:1px solid var(--line);background:#fff;bo
 button.p{background:var(--ac);color:#fff;border-color:var(--ac)}input[type=checkbox]{width:auto}input[type=date],input[type=text],input[type=number],input[type=password],input[type=time],select{border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 #login{max-width:340px;margin:60px auto;padding:16px;display:grid;gap:12px}
-nav{position:sticky;top:0;background:#fff;display:flex;border-bottom:1px solid var(--line)}nav button{flex:1;border:0;border-radius:0;padding:14px 4px}nav button.on{border-bottom:3px solid var(--ac);font-weight:700}
+nav{position:sticky;top:0;background:#fff;display:flex;border-bottom:1px solid var(--line)}nav button{flex:1;border:0;border-radius:0;padding:14px 2px;font-size:14px}nav button.on{border-bottom:3px solid var(--ac);font-weight:700}
 main{max-width:720px;margin:0 auto;padding:12px}.hide{display:none!important}
 .ord{border:1px solid var(--line);border-radius:10px;padding:10px;margin:10px 0}.ord .h{display:flex;justify-content:space-between;font-weight:700}.ord ul{margin:6px 0;padding-left:18px}.ord small{color:var(--mut)}
 .cat{border-top:2px solid var(--ink);margin-top:18px;padding-top:8px}.cath{display:flex;gap:8px}.cath input{font-weight:700}
@@ -14,19 +14,21 @@ main{max-width:720px;margin:0 auto;padding:12px}.hide{display:none!important}
 .f{display:grid;grid-template-columns:1fr 90px;gap:6px}.row2{grid-column:2;display:flex;gap:12px;align-items:center}
 .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px;text-align:center}
 .st{display:grid;grid-template-columns:1fr 1fr;gap:8px}.st div{border:1px solid var(--line);border-radius:10px;padding:10px}.st b{display:block;font-size:22px}
+#cm{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:20}#cm .box{background:#fff;border-radius:12px;padding:16px;width:min(92vw,360px);display:grid;gap:10px}
 #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px}
 </style></head><body>
-<div id="login"><h2>Yönetim Paneli</h2><input type="text" id="us" placeholder="Kullanıcı Adı" autocomplete="username" autocapitalize="none" spellcheck="false"><input type="password" id="pw" placeholder="Şifre" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false"><label style="font-size:14px"><input type="checkbox" id="sh"> Şifreyi Göster</label><button type="button" class="p" id="go">Giriş Yap</button><small id="err" style="color:var(--bad)"></small></div>
+<div id="login"><h2>Yönetim Paneli</h2><input type="text" id="us" placeholder="Kullanıcı Adı" autocomplete="username" autocapitalize="none" spellcheck="false"><input type="password" id="pw" placeholder="Şifre" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false"><label style="font-size:14px"><input type="checkbox" id="sh"> Şifreyi Göster</label><button type="button" class="p" id="go">Giriş Yap</button><button type="button" id="home">Ana Sayfaya Git</button><small id="err" style="color:var(--bad)"></small></div>
 <div id="app" class="hide">
-<nav><button data-t="o" class="on">Siparişler</button><button data-t="m">Menü</button><button data-t="s">Ayarlar</button><button data-t="r">Rapor</button></nav>
+<nav><button data-t="o" class="on">Siparişler</button><button data-t="m">Menü</button><button data-t="s">Ayarlar</button><button data-t="r">Rapor</button><button data-t="g">Geçmiş</button></nav>
 <div style="text-align:right;padding:6px 12px 0"><button id="out">Çıkış</button></div>
 <main>
 <section id="t-o"><select id="od"><option value="1">Bugün</option><option value="7">Son 7 Gün</option><option value="r">Tarih Aralığı Seç</option></select><div id="odr" class="hide st" style="margin-top:8px"><div>Başlangıç<input type="date" id="of"></div><div>Bitiş<input type="date" id="ot"></div></div><div id="orders"></div></section>
 <section id="t-m" class="hide"><div id="menu"></div></section>
 <section id="t-s" class="hide"><h3>Siparişler</h3><label><input type="checkbox" id="open"> Sipariş Alınıyor</label><p><small>Kapatırsan müşteriler sipariş veremez.</small></p><h3>Çalışma Saatleri</h3><div class="st"><div>Açılış<input type="time" id="from"></div><div>Kapanış<input type="time" id="to"></div></div><p><button class="p" id="saveS">Ayarları Kaydet</button></p></section>
 <section id="t-r" class="hide"><select id="rd"><option value="1">Bugün</option><option value="7">Son 7 Gün</option><option value="r">Tarih Aralığı Seç</option></select><div id="rdr" class="hide st" style="margin-top:8px"><div>Başlangıç<input type="date" id="rf"></div><div>Bitiş<input type="date" id="rt"></div></div><div id="rep"></div></section>
+<section id="t-g" class="hide"><p><small>Menü ve ayarlarda yapılan değişiklikler 180 gün saklanır.</small></p><div id="log"></div></section>
 </main>
-<div class="bar hide" id="mbar"><button class="p" id="saveM">Menüyü Kaydet</button></div></div><div id="toast" class="hide"></div>
+<div class="bar hide" id="mbar"><button class="p" id="saveM">Menüyü Kaydet</button></div></div><div id="cm" class="hide"><div class="box"><h3 style="margin:0">Şifre Onayı</h3><div id="cl"></div><input type="password" id="cp" placeholder="Şifre" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"><label style="font-size:14px"><input type="checkbox" id="cs"> Şifreyi Göster</label><small id="ce" style="color:var(--bad)"></small><div style="display:flex;gap:8px"><button class="p" id="cok" style="flex:1">Onayla</button><button id="cno" style="flex:1">Vazgeç</button></div></div></div><div id="toast" class="hide"></div>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let KEY=localStorage.getItem("k")||"",USR=localStorage.getItem("u")||"",HASU=localStorage.getItem("u")!==null,busy=0,menu={categories:[]},tab="o";
@@ -35,8 +37,8 @@ async function api(p,o={}){const r=await fetch("/api/"+p,{...o,headers:{...(o.he
 async function start(man){if(busy)return;busy=1;try{await api("check")}catch(e){busy=0;$("#err").style.fontWeight=man&&e.left<=3?"700":"400";$("#err").textContent=String(e.message)=="401"?(man?"Kullanıcı adı veya şifre yanlış."+(e.left!=null?" Kalan hakkınız: "+e.left:""):"Lütfen tekrar giriş yapın."):String(e.message)=="429"?"Çok fazla yanlış deneme. 15 dakika sonra tekrar deneyin.":"Bağlantı hatası, tekrar deneyin.";return}
 busy=0;$("#err").textContent="";localStorage.setItem("k",KEY);localStorage.setItem("u",USR);$("#login").classList.add("hide");$("#app").classList.remove("hide");
 const d=await (await fetch("/api/menu")).json();menu=d.menu;$("#open").checked=d.settings.open!==false;$("#from").value=d.settings.from||"";$("#to").value=d.settings.to||"";drawMenu();loadOrders()}
-$("#go").onclick=()=>{USR=$("#us").value.trim();KEY=$("#pw").value;start(1)};$("#sh").onchange=e=>{$("#pw").type=e.target.checked?"text":"password"};["#us","#pw"].forEach(i=>$(i).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#go").click()}}));if(KEY&&HASU)start();else localStorage.removeItem("k");
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["o","m","s","r"].forEach(t=>$("#t-"+t).classList.toggle("hide",t!=tab));$("#mbar").classList.toggle("hide",tab!="m");if(tab=="o")loadOrders();if(tab=="r")loadReport()});
+$("#go").onclick=()=>{USR=$("#us").value.trim();KEY=$("#pw").value;start(1)};$("#home").onclick=()=>{location.href="/"};$("#sh").onchange=e=>{$("#pw").type=e.target.checked?"text":"password"};["#us","#pw"].forEach(i=>$(i).addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#go").click()}}));if(KEY&&HASU)start();else localStorage.removeItem("k");
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x==b));["o","m","s","r","g"].forEach(t=>$("#t-"+t).classList.toggle("hide",t!=tab));$("#mbar").classList.toggle("hide",tab!="m");if(tab=="o")loadOrders();if(tab=="r")loadReport();if(tab=="g")loadLog()});
 const today=()=>new Date(Date.now()+3*36e5).toISOString().slice(0,10);
 async function fetchOrders(sel,f,t){let q;if(sel=="r"){if(!f||!t)return null;if(f>t)[f,t]=[t,f];if(Date.parse(t)-Date.parse(f)>90*864e5)throw new Error("range");q="from="+f+"&to="+t}else q="days="+sel;return (await (await api("orders?"+q)).json()).orders}
 function rng(sel,a,b,box){const r=$(sel).value=="r";$(box).classList.toggle("hide",!r);if(r){if(!$(a).value)$(a).value=today();if(!$(b).value)$(b).value=today()}}
@@ -54,7 +56,18 @@ if(d.a=="ac")cs.push({name:"",items:[]});if(d.a=="ai")cs[d.c].items.push({id:Mat
 if(d.a=="di"&&confirm("Ürün silinsin mi?"))cs[d.c].items.splice(d.i,1);if(d.a=="dc"&&confirm("Kategori ve içindeki tüm ürünler silinsin mi?"))cs.splice(d.c,1);drawMenu()});
 async function shrink(f){const b=await createImageBitmap(f),s=Math.min(1,800/Math.max(b.width,b.height)),cv=document.createElement("canvas");cv.width=Math.round(b.width*s);cv.height=Math.round(b.height*s);cv.getContext("2d").drawImage(b,0,0,cv.width,cv.height);return cv.toDataURL("image/jpeg",.8).split(",")[1]}
 document.addEventListener("change",async e=>{const d=e.target.dataset;if(d.a!="ph"||!e.target.files[0])return;try{toast("Fotoğraf yükleniyor...");const r=await api("photo",{method:"POST",body:JSON.stringify({b:await shrink(e.target.files[0])})});menu.categories[d.c].items[d.i].photo=(await r.json()).id;drawMenu();await saveMenu()}catch{toast("Fotoğraf yüklenemedi")}});
-async function saveMenu(){try{await api("menu",{method:"PUT",body:JSON.stringify(menu)});toast("Kaydedildi")}catch{toast("Kaydedilemedi")}}
-$("#saveM").onclick=saveMenu;$("#out").onclick=()=>{localStorage.removeItem("k");localStorage.removeItem("u");location.reload()};
+let cbusy=0;
+async function saveMenu(cf){try{const r=await fetch("/api/menu",{method:"PUT",headers:{"x-admin-key":KEY,"x-admin-user":USR,...(cf?{"x-confirm":cf}:{})},body:JSON.stringify(menu)});
+if(r.status===403){const j=await r.json().catch(()=>({}));askPw(j.changes||[],j.left,!!cf);return false}
+if(r.status===429){toast("Çok fazla yanlış deneme. 15 dakika bekleyin.");return false}
+if(!r.ok)throw 0;toast("Kaydedildi");return true}catch{toast("Kaydedilemedi");return false}}
+function askPw(ch,left,tried){$("#cl").innerHTML="Silme veya fiyat değişikliği için şifrenizi tekrar girin:<br><small>"+ch.map(esc).join("<br>")+"</small>";$("#ce").textContent=tried?"Şifre yanlış."+(left!=null?" Kalan hakkınız: "+left:""):"";$("#cp").value="";$("#cm").classList.remove("hide");$("#cp").focus()}
+$("#cok").onclick=async()=>{const v=$("#cp").value;if(!v||cbusy)return;cbusy=1;$("#cm").classList.add("hide");await saveMenu(v);cbusy=0};
+$("#cno").onclick=()=>{$("#cm").classList.add("hide");toast("Kaydedilmedi")};
+$("#cs").onchange=e=>{$("#cp").type=e.target.checked?"text":"password"};
+$("#cp").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("#cok").click()}});
+const tl=t=>new Date(t).toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+async function loadLog(){try{const l=(await (await api("log")).json()).log;$("#log").innerHTML=l.length?l.map(x=>`<div class=ord><small>${tl(x.t)}</small><div>${esc(x.w)}</div></div>`).join(""):"<p>Kayıt yok.</p>"}catch{$("#log").innerHTML="<p>Geçmiş alınamadı.</p>"}}
+$("#saveM").onclick=()=>saveMenu();$("#out").onclick=()=>{localStorage.removeItem("k");localStorage.removeItem("u");location.reload()};
 $("#saveS").onclick=async()=>{try{await api("settings",{method:"PUT",body:JSON.stringify({open:$("#open").checked,from:$("#from").value,to:$("#to").value})});toast("Kaydedildi")}catch{toast("Kaydedilemedi")}};
 </script></body></html>
