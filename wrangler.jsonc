@@ -1,6 +1,6 @@
 // Build testi - 03.11.2026
 {
-  "name": "burger-evi-demo",
+  "name": "burger-evi",
   "main": "worker.js",
   "compatibility_date": "2025-09-01",
   "assets": {
